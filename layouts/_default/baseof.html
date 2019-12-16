@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.LanguageCode | default "en-US" }}">
+  <head>
+    <meta charset="utf-8">
+    <title>{{ .Title}}{{ if not .IsHome }} &middot; {{ .Site.Title }}{{ end }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
+    {{ with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
+    {{ with .Site.Params.keywords }}<meta name="keywords" content="{{ . }}">{{ end }}
+    {{ hugo.Generator }}
+
+    {{ template "_internal/opengraph.html" . }}
+
+    {{ $style := resources.Get "main.scss" | toCSS | minify | fingerprint }}
+    <link rel="stylesheet" href="{{ $style.Permalink }}" integrity="{{ $style.Data.Integrity }}">
+    <link rel="apple-touch-icon" href="{{ "apple-touch-icon.png" | absURL }}">
+    <link rel="shortcut icon" href="{{ "favicon.ico" | absURL }}" type="image/x-icon">
+
+    {{ range .AlternativeOutputFormats -}}
+      {{ printf `<link rel="%s" type="%s" href="%s" title="%s" />` .Rel .MediaType.Type .Permalink $.Site.Title | safeHTML }}
+    {{ end -}}
+  </head>
+  <body>
+    <nav id='pageNavigation'>
+      <ul>
+        {{ range .Site.Menus.nav -}}
+          <li>
+            <a href="{{ .URL }}">{{ .Name }}</a>
+          </li>
+        {{- end }}
+      </ul>
+    </nav>
+
+    <main>
+      {{ block "main" . -}}{{- end }}
+    </main>
+
+    <footer id='pageFooter'>
+      <p>
+        {{ .Site.Params.author }}<br>
+        {{ .Site.Params.description }}<br>
+
+        {{ with .OutputFormats.Get "rss" -}}
+          <a href="{{ .Permalink }}">
+            Atom/RSS feed
+          </a>
+        {{- end }}
+      </p>
+      <p>
+        <a href='https://github.com/evanleck'>github.com/evanleck</a><br>
+        <a href='https://twitter.com/evanleck'>twitter.com/evanleck</a>
+      </p>
+    </footer>
+    <script src="//instant.page/3.0.0" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{{ define "main" }}
+  <header class='banner'>
+    <h1>
+      {{ .Site.Params.author }}
+    </h1>
+    <p>
+      {{ .Site.Params.description }}
+    </p>
+  </header>
+  <section>
+    {{ range .Site.RegularPages -}}
+      {{ .Render "summary" }}
+    {{- end }}
+  </section>
+{{ end }}

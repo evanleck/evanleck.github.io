@@ -1,0 +1,10 @@
+<article class='summary' itemscope itemtype='http://schema.org/Article'>
+  <header style="background-color: {{ .Params.background }}">
+    <h1 itemprop='name'>
+      <a href="{{ .Permalink }}">
+        {{ .Title }}
+      </a>
+    </h1>
+    {{ partial "post-meta" . }}
+  </header>
+</article>
