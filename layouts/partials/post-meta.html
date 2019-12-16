@@ -8,7 +8,7 @@
     {{ if gt $tagsLen 0 -}}
       in
       {{ range $k, $v := (sort .Params.tags) -}}
-        <a href="{{ $.Site.BaseURL }}tags/{{ . | urlize | lower }}">{{ . }}</a>
+        <a href="/tags/{{ . | urlize | lower }}">{{ . }}</a>
         {{ if lt $k (sub $tagsLen 1) }}, {{ end }}
       {{- end }}
     {{- end }}
