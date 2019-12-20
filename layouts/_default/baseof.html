@@ -2,7 +2,7 @@
 <html lang="{{ .Site.LanguageCode | default "en-US" }}">
   <head>
     <meta charset="utf-8">
-    <title>{{ .Title}}{{ if not .IsHome }} &middot; {{ .Site.Title }}{{ end }}</title>
+    <title>{{ .Title}} &middot; {{ if not .IsHome }}{{ .Site.Title }}{{ else }}{{ .Site.Params.description }}{{ end }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {{ with .Site.Params.author }}<meta name="author" content="{{ . }}">{{ end }}
     {{ with .Site.Params.description }}<meta name="description" content="{{ . }}">{{ end }}
