@@ -158,6 +158,10 @@ code, pre {
       }
     }
 
+    code {
+      font-size: 0.9rem;
+    }
+
     p:first-child {
       &:first-letter {
         float: left;
