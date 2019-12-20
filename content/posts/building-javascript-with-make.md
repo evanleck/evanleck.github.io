@@ -2,7 +2,7 @@
 title = "Building JavaScript with Make"
 date = 2019-12-20
 tags = ["JavaScript", "Make"]
-draft = true
+draft = false
 background = "teal"
 +++
 
