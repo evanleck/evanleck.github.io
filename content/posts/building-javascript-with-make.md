@@ -58,7 +58,7 @@ version of our Makefile from above that lists `src/index.js` as a prerequisite:
 
 ```makefile
 dest/index.js: src/index.js
-	cp src/index.js dest/index.js
+  cp src/index.js dest/index.js
 ```
 
 Make understands that if a prerequisite has been updated then any targets that
@@ -112,10 +112,10 @@ existing target/recipe setup, changing only the file names:
 
 ```makefile
 dest/index.js: src/index.js
-	npx terser src/index.js --compress --output dest/index.js
-	
+  npx terser src/index.js --compress --output dest/index.js
+
 dest/lib.js: src/lib.js
-	npx terser src/lib.js --compress --output dest/lib.js
+  npx terser src/lib.js --compress --output dest/lib.js
 ```
 
 This kinda sucks though. There’s a ton of duplication and when we inevitably
@@ -129,7 +129,7 @@ understand what’s going on.
 
 ```makefile
 dest/%.js: src/%.js
-	npx terser '$<' --compress --output '$@'
+  npx terser '$<' --compress --output '$@'
 ```
 
 The target, prerequisites, and recipe look _very_ similar to before, but with
