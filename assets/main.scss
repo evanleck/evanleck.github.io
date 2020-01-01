@@ -150,22 +150,23 @@ code, pre {
       border-radius: .25rem;
       overflow-x: auto;
 
-      .chroma {
+      > div {
         padding: .25rem;
       }
 
       pre {
         display: block;
-        font-size: 0.9rem;
-        line-height: 1.2em;
         margin: 0;
-
-        @include at-least($breakpoint) {
-          font-size: 0.75rem;
-        }
 
         code {
           display: block;
+          font-size: 15px;
+          line-height: 1.2;
+
+          @include at-least($breakpoint) {
+            font-size: 18px;
+            line-height: 1.2;
+          }
         }
       }
     }
