@@ -158,7 +158,13 @@ code, pre {
         line-height: 1.2;
       }
 
-      pre {
+      // Line number tables should be block so their margin + padding apply correctly.
+      .lnt {
+        display: block;
+      }
+
+      pre, code {
+        display: block;
         margin: 0;
       }
     }
