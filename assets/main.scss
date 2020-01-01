@@ -147,16 +147,26 @@ code, pre {
     padding: 0 1rem;
 
     div.highlight {
-      line-height: 1em;
-      overflow: auto;
       border-radius: .25rem;
+      overflow-x: auto;
 
       .chroma {
         padding: .25rem;
       }
 
       pre {
+        display: block;
+        font-size: 0.9rem;
+        line-height: 1.2em;
         margin: 0;
+
+        @include at-least($breakpoint) {
+          font-size: 0.75rem;
+        }
+
+        code {
+          display: block;
+        }
       }
     }
 
