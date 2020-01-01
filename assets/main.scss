@@ -1,7 +1,7 @@
 @import 'syntax';
 
 $black: #292724;
-$breakpoint: 32rem;
+$breakpoint: 650px;
 $container-width: 30rem;
 
 @mixin at-least($device-width) {
@@ -155,7 +155,6 @@ code, pre {
 
       @include at-least($breakpoint) {
         font-size: 18px;
-        line-height: 1.2;
       }
 
       // Line number tables should be block so their margin + padding apply correctly.
