@@ -1,3 +1,5 @@
+@import 'syntax';
+
 $black: #292724;
 $breakpoint: 32rem;
 $container-width: 30rem;
@@ -149,7 +151,7 @@ code, pre {
       overflow: auto;
       border-radius: .25rem;
 
-      > div {
+      .chroma {
         padding: .25rem;
       }
 
