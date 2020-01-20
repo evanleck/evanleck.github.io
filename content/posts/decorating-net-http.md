@@ -69,18 +69,26 @@ gist](https://gist.github.com/evanleck/f60b6437ebbbbf96709937804e81d44c)):
 ```ruby
 # encoding: UTF-8
 # frozen_string_literal: true
-require 'net/http' require 'json' require 'uri'
+require 'net/http'
+require 'json'
+require 'uri'
 
-class HTTPDecorator # Timeouts OPEN_TIMEOUT = 10 # in seconds READ_TIMEOUT = 120
-  # in seconds
+class HTTPDecorator
+  # Timeouts
+  OPEN_TIMEOUT = 10  # in seconds
+  READ_TIMEOUT = 120 # in seconds
 
-  # Content-types CONTENT_TYPE_JSON = 'application/json' CONTENT_TYPE_FORM =
-  'application/x-www-form-urlencoded' CONTENT_TYPE_MULTIPART =
-  "multipart/form-data; boundary=#{ Rack::Multipart::MULTIPART_BOUNDARY }"
+  # Content-types
+  CONTENT_TYPE_JSON = 'application/json'
+  CONTENT_TYPE_FORM = 'application/x-www-form-urlencoded'
+  CONTENT_TYPE_MULTIPART = "multipart/form-data; boundary=#{ Rack::Multipart::MULTIPART_BOUNDARY }"
 
-  def initialize(domain) # Build up our HTTP object @http =
-    Net::HTTP.new(domain, 443) @http.use_ssl = true @http.verify_mode =
-    OpenSSL::SSL::VERIFY_PEER @http.open_timeout = OPEN_TIMEOUT
+  def initialize(domain)
+    # Build up our HTTP object
+    @http = Net::HTTP.new(domain, 443)
+    @http.use_ssl = true
+    @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    @http.open_timeout = OPEN_TIMEOUT
     @http.read_timeout = READ_TIMEOUT
 
     # In local development we can log requests and responses to $stdout.
@@ -90,10 +98,13 @@ class HTTPDecorator # Timeouts OPEN_TIMEOUT = 10 # in seconds READ_TIMEOUT = 120
     end
   end
 
-  # Open a connection for multiple calls. # - Accepts a block, otherwise just
-  opens the connection. # - You'll need to close the connection if you just open
-  it. def start if block_given? # Open the connection. @http.start unless
-  @http.started?
+  # Open a connection for multiple calls.
+  # - Accepts a block, otherwise just opens the connection.
+  # - You'll need to close the connection if you just open it.
+  def start
+    if block_given?
+      # Open the connection.
+      @http.start unless @http.started?
 
       # Yield to the calling block.
       yield(self)
@@ -106,17 +117,23 @@ class HTTPDecorator # Timeouts OPEN_TIMEOUT = 10 # in seconds READ_TIMEOUT = 120
     end
   end
 
-  # Clean up the connection if needed. def finish @http.finish if @http.started?
+  # Clean up the connection if needed.
+  def finish
+    @http.finish if @http.started?
   end
 
-  # GET def get(path, params = {}) uri = URI.parse(path) uri.query =
-  URI.encode_www_form(params) unless params.empty? request =
-  Net::HTTP::Get.new(uri.to_s)
+  # GET
+  def get(path, params = {})
+    uri       = URI.parse(path)
+    uri.query = URI.encode_www_form(params) unless params.empty?
+    request   = Net::HTTP::Get.new(uri.to_s)
 
-    parse fetch(request) end
+    parse fetch(request)
+  end
 
-  # POST def post(path, params = {}, as: :json) request =
-  Net::HTTP::Post.new(path)
+  # POST
+  def post(path, params = {}, as: :json)
+    request = Net::HTTP::Post.new(path)
 
     case as
     when :json
@@ -127,7 +144,8 @@ class HTTPDecorator # Timeouts OPEN_TIMEOUT = 10 # in seconds READ_TIMEOUT = 120
       request.body = URI.encode_www_form(params) unless params.empty?
     end
 
-    parse fetch(request) end
+    parse fetch(request)
+  end
 
   # DELETE
   def delete(path)
