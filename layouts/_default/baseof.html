@@ -36,19 +36,24 @@
     </main>
 
     <footer id='pageFooter'>
-      <p>
-        {{ .Site.Params.author }}<br>
-        {{ .Site.Params.description }}<br>
+      <div>
+        <p>
+          {{ .Site.Params.author }}<br>
+          {{ .Site.Params.description }}<br>
 
-        {{ with .OutputFormats.Get "rss" -}}
-          <a href="{{ .Permalink }}">
-            Atom/RSS feed
-          </a>
-        {{- end }}
-      </p>
+          {{ with .OutputFormats.Get "rss" -}}
+            <a href="{{ .Permalink }}">
+              Atom/RSS feed
+            </a>
+          {{- end }}
+        </p>
+        <p>
+          <a href='https://github.com/evanleck'>github.com/evanleck</a><br>
+          <a href='https://twitter.com/evanleck'>twitter.com/evanleck</a>
+        </p>
+      </div>
       <p>
-        <a href='https://github.com/evanleck'>github.com/evanleck</a><br>
-        <a href='https://twitter.com/evanleck'>twitter.com/evanleck</a>
+        <a href='https://gitlab.com/evanleck/lecklider.com'>This site's source code.</a>
       </p>
     </footer>
     <script src="//instant.page/3.0.0" type="module" defer integrity="sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1"></script>
