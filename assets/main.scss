@@ -2,7 +2,7 @@
 
 $black: #292724;
 $breakpoint: 650px;
-$container-width: 28rem;
+$container-width: 32rem;
 
 @mixin at-least($device-width) {
   @media screen and (min-width: $device-width) {
@@ -22,8 +22,10 @@ $container-width: 28rem;
 }
 
 html {
+  font-size: 125%;
+
   @include at-least($breakpoint) {
-    font-size: 130%;
+    font-size: 150%;
   }
 }
 
