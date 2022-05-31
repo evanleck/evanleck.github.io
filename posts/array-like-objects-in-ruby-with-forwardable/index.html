@@ -1,0 +1,79 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title>Array-like Objects in Ruby with Forwardable &#183; Evan Lecklider</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Evan Lecklider"><meta name=description content="A blog about software development"><meta name=generator content="Hugo 0.100.0"><meta property="og:title" content="Array-like Objects in Ruby with Forwardable"><meta property="og:description" content="A couple of times recently I&rsquo;ve needed something that behaved like and array, but with some extra methods that are specific to the context of the list I&rsquo;m dealing with. For example, an array of transactions with a couple of extra methods for common queries I want to perform against those transactions.
+Here I&rsquo;ll show you how I deal with Array-like objects and why I like using Forwardable to create wrappers around arrays."><meta property="og:type" content="article"><meta property="og:url" content="https://lecklider.com/posts/array-like-objects-in-ruby-with-forwardable/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2016-03-17T00:00:00+00:00"><meta property="article:modified_time" content="2016-03-17T00:00:00+00:00"><link rel=stylesheet href=https://lecklider.com/main.min.f5adb5eb39b06da2e40c222264f41f139f71c6162c38b45b0b612b6a5842737b.css integrity="sha256-9a216zmwbaLkDCIiZPQfE59xxhYsOLRbC2EralhCc3s="><link rel=apple-touch-icon href=https://lecklider.com/apple-touch-icon.png><link rel="shortcut icon" href=https://lecklider.com/favicon.ico type=image/x-icon></head><body><nav id=pageNavigation><ul><li><a href=/>Home</a></li></ul></nav><main><article id=singleArticle itemscope itemtype=http://schema.org/Article><meta itemprop=author content="Evan Lecklider"><header style=background-color:#6495ed><h1 itemprop=name>Array-like Objects in Ruby with Forwardable</h1><p><time datetime="2016-03-17 00:00:00 +0000 UTC" itemprop=datePublished>Mar 17, 2016</time>
+in
+<a href=/tags/ruby>Ruby</a></p></header><section itemprop=articleBody><p>A couple of times recently I&rsquo;ve needed something that behaved <em>like</em> and array,
+but with some extra methods that are specific to the context of the list I&rsquo;m
+dealing with. For example, an array of transactions with a couple of extra
+methods for common queries I want to perform against those transactions.</p><p>Here I&rsquo;ll show you how I deal with Array-like objects and why I like using
+Forwardable to create wrappers around arrays.</p><h2 id=transaction>Transaction</h2><p>For this example, we&rsquo;ll use an array of Transaction objects. Let&rsquo;s assume our
+base Transaction class looks like this:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln>1</span><span class=cl><span class=k>class</span> <span class=nc>Transaction</span>
+</span></span><span class=line><span class=ln>2</span><span class=cl>  <span class=k>def</span> <span class=nf>initialize</span><span class=p>(</span><span class=n>data</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>3</span><span class=cl>    <span class=vi>@amount</span> <span class=o>=</span> <span class=n>data</span><span class=o>[</span><span class=ss>:amount</span><span class=o>]</span>
+</span></span><span class=line><span class=ln>4</span><span class=cl>    <span class=vi>@status</span> <span class=o>=</span> <span class=n>data</span><span class=o>[</span><span class=ss>:status</span><span class=o>]</span>
+</span></span><span class=line><span class=ln>5</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>6</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><h2 id=array>Array</h2><p>If we have a simple array of Transaction objects, we can query it like this:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln>1</span><span class=cl><span class=c1># Select transactions that have settled.</span>
+</span></span><span class=line><span class=ln>2</span><span class=cl><span class=vi>@transactions</span><span class=o>.</span><span class=n>select</span> <span class=k>do</span> <span class=o>|</span><span class=n>transaction</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>3</span><span class=cl>  <span class=n>transaction</span><span class=o>.</span><span class=n>status</span> <span class=o>==</span> <span class=s1>&#39;settled&#39;</span>
+</span></span><span class=line><span class=ln>4</span><span class=cl><span class=k>end</span>
+</span></span><span class=line><span class=ln>5</span><span class=cl>
+</span></span><span class=line><span class=ln>6</span><span class=cl><span class=c1># Select transactions that are still pending.</span>
+</span></span><span class=line><span class=ln>7</span><span class=cl><span class=vi>@transactions</span><span class=o>.</span><span class=n>select</span> <span class=k>do</span> <span class=o>|</span><span class=n>transaction</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>8</span><span class=cl>  <span class=n>transaction</span><span class=o>.</span><span class=n>status</span> <span class=o>==</span> <span class=s1>&#39;pending&#39;</span>
+</span></span><span class=line><span class=ln>9</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><p>It&rsquo;s not super pretty, but it works. What I&rsquo;d like is to shorten this up since
+there&rsquo;s a fairly finite set of common queries we&rsquo;ll perform against this
+collection.</p><h2 id=forwardable>Forwardable</h2><p>To this end, we&rsquo;ll create a new &lsquo;TransactionList&rsquo; class that uses Ruby&rsquo;s
+<a href=http://ruby-doc.org/stdlib-2.3.0/libdoc/forwardable/rdoc/Forwardable.html>Forwardable</a>
+module to delegate to our array. We know that we&rsquo;ll want to call &rsquo;each&rsquo; and
+&lsquo;select&rsquo; on our transactions, so let&rsquo;s start by delegating those using the
+<a href=http://ruby-doc.org/stdlib-2.3.0/libdoc/forwardable/rdoc/Forwardable.html#method-i-delegate>delegate</a>
+method.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln>1</span><span class=cl><span class=k>class</span> <span class=nc>TransactionList</span>
+</span></span><span class=line><span class=ln>2</span><span class=cl>  <span class=kp>extend</span> <span class=no>Forwardable</span>
+</span></span><span class=line><span class=ln>3</span><span class=cl>  <span class=n>delegate</span> <span class=o>[</span><span class=ss>:each</span><span class=p>,</span> <span class=ss>:select</span><span class=o>]</span> <span class=o>=&gt;</span> <span class=ss>:@transactions</span>
+</span></span><span class=line><span class=ln>4</span><span class=cl>
+</span></span><span class=line><span class=ln>5</span><span class=cl>  <span class=k>def</span> <span class=nf>initialize</span><span class=p>(</span><span class=n>transactions</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>6</span><span class=cl>    <span class=vi>@transactions</span> <span class=o>=</span> <span class=n>transactions</span>
+</span></span><span class=line><span class=ln>7</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>8</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><p>Cool, this is shaping up! Let&rsquo;s add some extra methods to simplify our original
+queries.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln> 1</span><span class=cl><span class=k>class</span> <span class=nc>TransactionList</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl>  <span class=kp>extend</span> <span class=no>Forwardable</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl>  <span class=n>delegate</span> <span class=o>[</span><span class=ss>:each</span><span class=p>,</span> <span class=ss>:select</span><span class=o>]</span> <span class=o>=&gt;</span> <span class=ss>:@transactions</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl>
+</span></span><span class=line><span class=ln> 5</span><span class=cl>  <span class=k>def</span> <span class=nf>initialize</span><span class=p>(</span><span class=n>transactions</span><span class=p>)</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl>    <span class=vi>@transactions</span> <span class=o>=</span> <span class=n>transactions</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln> 8</span><span class=cl>
+</span></span><span class=line><span class=ln> 9</span><span class=cl>  <span class=c1># Select only transactions that have a &#39;settled&#39; status.</span>
+</span></span><span class=line><span class=ln>10</span><span class=cl>  <span class=k>def</span> <span class=nf>settled</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl>    <span class=vi>@transactions</span><span class=o>.</span><span class=n>select</span> <span class=k>do</span> <span class=o>|</span><span class=n>transaction</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>      <span class=n>transaction</span><span class=o>.</span><span class=n>status</span> <span class=o>==</span> <span class=s1>&#39;settled&#39;</span>
+</span></span><span class=line><span class=ln>13</span><span class=cl>    <span class=k>end</span>
+</span></span><span class=line><span class=ln>14</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>15</span><span class=cl>
+</span></span><span class=line><span class=ln>16</span><span class=cl>  <span class=c1># Select only transactions that have a &#39;pending&#39; status.</span>
+</span></span><span class=line><span class=ln>17</span><span class=cl>  <span class=k>def</span> <span class=nf>pending</span>
+</span></span><span class=line><span class=ln>18</span><span class=cl>    <span class=vi>@transactions</span><span class=o>.</span><span class=n>select</span> <span class=k>do</span> <span class=o>|</span><span class=n>transaction</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>19</span><span class=cl>      <span class=n>transaction</span><span class=o>.</span><span class=n>status</span> <span class=o>==</span> <span class=s1>&#39;pending&#39;</span>
+</span></span><span class=line><span class=ln>20</span><span class=cl>    <span class=k>end</span>
+</span></span><span class=line><span class=ln>21</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>22</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><p>And now, we can use them like this:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln> 1</span><span class=cl><span class=n>transactions</span> <span class=o>=</span> <span class=no>TransactionList</span><span class=o>.</span><span class=n>new</span><span class=p>(</span><span class=n>array</span><span class=p>)</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl>
+</span></span><span class=line><span class=ln> 3</span><span class=cl><span class=c1># An array of Transaction objects that has the status &#39;pending&#39;</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl><span class=n>transactions</span><span class=o>.</span><span class=n>pending</span><span class=o>.</span><span class=n>each</span> <span class=k>do</span> <span class=o>|</span><span class=n>transaction</span><span class=o>|</span>
+</span></span><span class=line><span class=ln> 5</span><span class=cl>  <span class=nb>puts</span> <span class=s2>&#34;Transaction for </span><span class=si>#{</span> <span class=n>transaction</span><span class=o>.</span><span class=n>amount</span> <span class=si>}</span><span class=s2> still pending&#34;</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl><span class=k>end</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl>
+</span></span><span class=line><span class=ln> 8</span><span class=cl><span class=c1># An array of Transaction objects that has the status &#39;settled&#39;</span>
+</span></span><span class=line><span class=ln> 9</span><span class=cl><span class=n>transactions</span><span class=o>.</span><span class=n>settled</span><span class=o>.</span><span class=n>each</span> <span class=k>do</span> <span class=o>|</span><span class=n>transaction</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>10</span><span class=cl>  <span class=nb>puts</span> <span class=s2>&#34;Transaction settled for </span><span class=si>#{</span> <span class=n>transaction</span><span class=o>.</span><span class=n>amount</span> <span class=si>}</span><span class=s2>&#34;</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><p>Pretty nifty, huh? This is a pretty simplified example but I use this pattern of
+wrapping arrays in custom &lsquo;List type objects all over the place.</p><h2 id=caveats>Caveats</h2><p>Because we&rsquo;ve only instructed TransactionList to delegate the &rsquo;each&rsquo; and
+&lsquo;select&rsquo; methods to our transactions array, if we try to call other
+<a href=http://ruby-doc.org/core-2.3.0/Enumerable.html>Enumerable</a> or
+<a href=http://ruby-doc.org/core-2.3.0/Array.html>Array</a> methods on our
+TransactionList we will get a NoMethodError. Remember, you have to <em>explicitly
+tell Forwardable what methods to delegate</em>.</p></section><aside><h3>Related</h3><ul><li><a href=/posts/better-low-level-error-handling-with-puma/>Better Low-Level Error Handling with Puma</a></li><li><a href=/posts/strong-parameters-in-sinatra/>Strong Parameters in Sinatra</a></li></ul></aside></article></main><footer id=pageFooter><div><p>Evan Lecklider<br>A blog about software development<br></p><p><a href=https://github.com/evanleck>github.com/evanleck</a><br><a href=https://twitter.com/evanleck>twitter.com/evanleck</a></p></div><p><a href=https://gitlab.com/evanleck/lecklider.com>This site's source code.</a></p></footer><script src=//instant.page/3.0.0 type=module defer integrity=sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1></script></body></html>

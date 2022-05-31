@@ -1,0 +1,87 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title>Making Nginx & WordPress Scream &#183; Evan Lecklider</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Evan Lecklider"><meta name=description content="A blog about software development"><meta name=generator content="Hugo 0.100.0"><meta property="og:title" content="Making Nginx & WordPress Scream"><meta property="og:description" content="WordPress is&mldr; interesting. It&rsquo;s sort of awesome and sort of The Worst™. PHP on its own certainly has its issues but in particular, my experience with WordPress has been less than stellar because it is surprisingly fragile; its robustness and extensibility often lead to inscrutable errors and edge case bugs (third-party issues, but enabled by their systemic embrace); attempting to scale it at all efficiently quickly becomes a game of maintenance, optimization plug-ins, and indomitable will; and as a matter of aesthetics, every WordPress blog looks like a fucking WordPress blog."><meta property="og:type" content="article"><meta property="og:url" content="https://lecklider.com/posts/making-nginx-and-wordpress-scream/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2013-10-10T00:00:00+00:00"><meta property="article:modified_time" content="2013-10-10T00:00:00+00:00"><link rel=stylesheet href=https://lecklider.com/main.min.f5adb5eb39b06da2e40c222264f41f139f71c6162c38b45b0b612b6a5842737b.css integrity="sha256-9a216zmwbaLkDCIiZPQfE59xxhYsOLRbC2EralhCc3s="><link rel=apple-touch-icon href=https://lecklider.com/apple-touch-icon.png><link rel="shortcut icon" href=https://lecklider.com/favicon.ico type=image/x-icon></head><body><nav id=pageNavigation><ul><li><a href=/>Home</a></li></ul></nav><main><article id=singleArticle itemscope itemtype=http://schema.org/Article><meta itemprop=author content="Evan Lecklider"><header style=background-color:salmon><h1 itemprop=name>Making Nginx & WordPress Scream</h1><p><time datetime="2013-10-10 00:00:00 +0000 UTC" itemprop=datePublished>Oct 10, 2013</time>
+in
+<a href=/tags/cache>Cache</a>
+, <a href=/tags/nginx>Nginx</a>
+, <a href=/tags/php>PHP</a>
+, <a href=/tags/wordpress>WordPress</a></p></header><section itemprop=articleBody><p>WordPress is&mldr; interesting. It&rsquo;s sort of awesome and sort of The
+Worst™. <a href=http://me.veekun.com/blog/2012/04/09/php-a-fractal-of-bad-design/>PHP on its own certainly has its
+issues</a> but
+in particular, my experience with WordPress has been less than stellar because
+it is surprisingly fragile; its robustness and extensibility often lead to
+inscrutable errors and edge case bugs (third-party issues, but enabled by their
+systemic embrace); attempting to scale it at all efficiently quickly becomes a
+game of maintenance, optimization plug-ins, and indomitable will; and as a
+matter of aesthetics, every WordPress blog looks like a fucking WordPress blog.
+Every. Oneofthem.</p><p>Nerdrage aside, having a nice GUI to work with and a quick way to slap a site
+together is valuable to a lot of people and companies. The savings involved
+probably outweigh the groans and grumbles of the developers who put the site
+together because ultimately, when the client needs to update the site, they can.
+So we charge on&mldr;</p><h2 id=caching-wordpress>Caching WordPress</h2><p>The idea here is to get WordPress the fuck out of the way. That means PHP/MySQL
+shouldn&rsquo;t even get fired up for a &ldquo;normal&rdquo; request. Posts and pages are
+effectively static so why the hell should PHP have to get itself all worked up
+just to render out the same shit as last time? It shouldn&rsquo;t. Obviously.</p><p>To get the burden off of PHP we&rsquo;re going to bring <a href=http://nginx.org/>Nginx</a>
+into play. Nginx is super good at serving files <em>suuuuper fast</em> from disk (or
+RAM, whatever) so the first thing we&rsquo;re gonna do is get WordPress set up to
+compile flat, HTML versions of posts to disk so we can leverage Nginx&rsquo;s speed to
+get our site that much closer to &ldquo;screamin&rsquo; fast.&rdquo; You <em>miiight</em> be able to get
+Apache to work for this setup, but in this case, Nginx&rsquo;s throughput and
+automatic FastCGI caching is really what we&rsquo;re looking for and Apache just
+doesn&rsquo;t have that (or at least I&rsquo;ve not seen it).</p><p><a href=http://wordpress.org/plugins/w3-total-cache/>W3 Total Cache</a> is your best
+friend here because, aside from all of the other awesome shit it can do, it&rsquo;ll
+compile flat HTML versions of posts and pages. <em>JUST WHAT WE WANTED!</em> So head on
+into the settings and enable &ldquo;Page Caching > Disk: Enhanced&rdquo; to get WordPress
+ready for awesomeness.</p><p>Next up, let&rsquo;s get Nginx set up. I&rsquo;ll assume here that you&rsquo;ve already gotten
+Nginx installed and pointed it at the base directory for your WordPress install.
+The trick now is to point Nginx first at the directory that W3 Total Cache
+writes cached files to and then, only if there&rsquo;s nothing there, to PHP. So let&rsquo;s
+do this:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=ln>1</span><span class=cl><span class=k>set</span> <span class=nv>$cache_uri</span> <span class=nv>$request_uri</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>2</span><span class=cl><span class=k>if</span> <span class=s>(</span><span class=nv>$request_uri</span> <span class=p>~</span><span class=sr>*</span> <span class=s>&#34;(.*)\?(.*)&#34;)</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>3</span><span class=cl>	<span class=kn>set</span> <span class=nv>$cache_uri</span> <span class=nv>$1</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>4</span><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=ln>5</span><span class=cl>
+</span></span><span class=line><span class=ln>6</span><span class=cl><span class=k>location</span> <span class=s>/</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>7</span><span class=cl>	<span class=kn>try_files</span> <span class=s>/wp-content/cache/page_enhanced/</span><span class=nv>$http_host/$cache_uri/_index.html</span> <span class=nv>$uri</span> <span class=nv>$uri/</span> <span class=s>/index.php</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>8</span><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>Here we set a <code>$cache_uri</code> variable to the internal <code>$request_uri</code> value then
+check for and remove the query string to avoid trying to access wacky
+directories. Then we look to the directory that W3 writes its cached content to
+(<code>/wp-content/cache/page_enhanced/$http_host/</code>) and look for a folder named
+after the request URI with a file named <code>_index.html</code> in it. That&rsquo;s our flat
+HTML, superduperfast version of that page and that&rsquo;s what we want to serve to
+the client.</p><p>This is huge. We&rsquo;ve now taken PHP & MySQL out of the equation for the bulk of
+the requests to our WordPress site, but we can do more. We can make it better.
+Let&rsquo;s add <a href=http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html>Nginx&rsquo;s awesome FastCGI
+caching</a>. Here&rsquo;s an
+abbreviated version of the Nginx config that&rsquo;ll get us there:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-nginx data-lang=nginx><span class=line><span class=ln> 1</span><span class=cl><span class=k>http</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl>  <span class=kn>fastcgi_temp_path</span>  <span class=s>/var/run/nginx-cache</span> <span class=mi>1</span> <span class=mi>2</span><span class=p>;</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl>  <span class=kn>fastcgi_cache_path</span> <span class=s>/var/run/nginx-cache</span> <span class=s>levels=1:2</span> <span class=s>keys_zone=WORDPRESS:500m</span> <span class=s>inactive=3m</span><span class=p>;</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl>
+</span></span><span class=line><span class=ln> 5</span><span class=cl>  <span class=kn>set</span> <span class=nv>$cache_uri</span> <span class=nv>$request_uri</span><span class=p>;</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl>  <span class=kn>if</span> <span class=s>(</span><span class=nv>$request_uri</span> <span class=p>~</span><span class=sr>*</span> <span class=s>&#34;(.*)\?(.*)&#34;)</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl>    <span class=kn>set</span> <span class=nv>$cache_uri</span> <span class=nv>$1</span><span class=p>;</span>
+</span></span><span class=line><span class=ln> 8</span><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=ln> 9</span><span class=cl>
+</span></span><span class=line><span class=ln>10</span><span class=cl>  <span class=kn>server</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl>    <span class=kn>fastcgi_cache_min_uses</span>  <span class=mi>1</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>    <span class=kn>fastcgi_cache_key</span>       <span class=s>&#34;</span><span class=nv>$scheme$request_method$host$cache_uri&#34;</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>13</span><span class=cl>    <span class=kn>fastcgi_cache_methods</span>   <span class=s>GET</span> <span class=s>HEAD</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>14</span><span class=cl>    <span class=kn>fastcgi_cache_use_stale</span> <span class=s>error</span> <span class=s>timeout</span> <span class=s>invalid_header</span> <span class=s>http_500</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>15</span><span class=cl>    <span class=kn>fastcgi_cache_valid</span>     <span class=mi>200</span> <span class=mi>301</span> <span class=mi>302</span> <span class=mi>304</span> <span class=s>1h</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>16</span><span class=cl>
+</span></span><span class=line><span class=ln>17</span><span class=cl>    <span class=kn>location</span> <span class=p>~</span> <span class=sr>\.php</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>18</span><span class=cl>      <span class=kn>fastcgi_cache</span> <span class=s>WORDPRESS</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>19</span><span class=cl>      <span class=kn>fastcgi_cache_valid</span>  <span class=mi>60m</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>20</span><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=ln>21</span><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=ln>22</span><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>Let&rsquo;s break this down a bit:</p><ul><li><code>fastcgi_cache_path</code> tells Nginx where to store the cache (duh) and the
+parameter <code>inactive</code> does something special though: when a cache key hasn&rsquo;t
+been accessed for the designated period of time (in this case three minutes),
+the key gets expired. Simple, but powerful.</li><li><code>$cache_uri</code> should look familiar: it&rsquo;s the same thing we had earlier. We
+break apart the request URI to get just the path portion.</li><li><code>fastcgi_cache_use_stale</code> tells Nginx to continue to serve any valid cache
+keys if the upstream server (PHP in our case) fails to respond for any reason.</li></ul><p>It&rsquo;s pretty simple and with this in place, we have a pretty robust system
+capable of handling <em>loads</em> of traffic with nary a moments notice. Like, fucking
+<em>loads</em> of traffic.</p><p>So yeah, it&rsquo;s screamin&rsquo; now.</p><p><strong>Update 2013 October 14:</strong></p><p>For reference, I was running four load balanced, non-optimized, c1.medium
+servers in EC2 with Apache+PHP serving the same site that totally crumbled
+around 3,000 active users. Four fucking servers.</p><p>With this set up, I&rsquo;ve got one server (same c1.medium in EC2) that handled <em>~
+3,900 users and never spiked above 15% CPU utilization</em>.</p><p>I know, I can hardly believe it myself.</p></section><aside><h3>Related</h3><ul></ul></aside></article></main><footer id=pageFooter><div><p>Evan Lecklider<br>A blog about software development<br></p><p><a href=https://github.com/evanleck>github.com/evanleck</a><br><a href=https://twitter.com/evanleck>twitter.com/evanleck</a></p></div><p><a href=https://gitlab.com/evanleck/lecklider.com>This site's source code.</a></p></footer><script src=//instant.page/3.0.0 type=module defer integrity=sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1></script></body></html>

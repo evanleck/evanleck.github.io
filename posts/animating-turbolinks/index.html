@@ -1,0 +1,85 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title>Animating Turbolinks &#183; Evan Lecklider</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Evan Lecklider"><meta name=description content="A blog about software development"><meta name=generator content="Hugo 0.100.0"><meta property="og:title" content="Animating Turbolinks"><meta property="og:description" content="I&rsquo;ve been using Turbolinks (with jquery.turbolinks) in a lot of my projects recently in an attempt to keep things fast while still doing most all of the rendering on the server. I like that Turbolinks more or less works out of the box without a ton of dependencies or set up and, IMO, speeds up page renders. The problem I ran up against was to add page transitions (like a swipe effect) to mobile pages."><meta property="og:type" content="article"><meta property="og:url" content="https://lecklider.com/posts/animating-turbolinks/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2014-07-11T00:00:00+00:00"><meta property="article:modified_time" content="2014-07-11T00:00:00+00:00"><link rel=stylesheet href=https://lecklider.com/main.min.f5adb5eb39b06da2e40c222264f41f139f71c6162c38b45b0b612b6a5842737b.css integrity="sha256-9a216zmwbaLkDCIiZPQfE59xxhYsOLRbC2EralhCc3s="><link rel=apple-touch-icon href=https://lecklider.com/apple-touch-icon.png><link rel="shortcut icon" href=https://lecklider.com/favicon.ico type=image/x-icon></head><body><nav id=pageNavigation><ul><li><a href=/>Home</a></li></ul></nav><main><article id=singleArticle itemscope itemtype=http://schema.org/Article><meta itemprop=author content="Evan Lecklider"><header style=background-color:#ff1493><h1 itemprop=name>Animating Turbolinks</h1><p><time datetime="2014-07-11 00:00:00 +0000 UTC" itemprop=datePublished>Jul 11, 2014</time>
+in
+<a href=/tags/css>CSS</a>
+, <a href=/tags/javascript>JavaScript</a></p></header><section itemprop=articleBody><p>I&rsquo;ve been using <a href=https://github.com/rails/turbolinks/>Turbolinks</a> (with
+<a href=https://github.com/kossnocorp/jquery.turbolinks>jquery.turbolinks</a>) in a lot
+of my projects recently in an attempt to keep things fast while still doing most
+all of the rendering on the server. I like that Turbolinks more or less works
+out of the box without a ton of dependencies or set up and, IMO, speeds up page renders. The problem I ran up against was to
+add page transitions (like a swipe effect) to mobile pages. Since Turbolinks
+just swaps the body of the document without any incremental steps, it&rsquo;s a little
+tricky to effectively animate that transition. The way I ended up overcoming it
+was to use Turbolinks&rsquo; event emissions to add classes to the HTML node and
+animate a child node with CSS transforms.</p><p>The CoffeeScript:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-coffeescript data-lang=coffeescript><span class=line><span class=ln> 1</span><span class=cl><span class=c1># starting to fetch a new target page
+</span></span></span><span class=line><span class=ln> 2</span><span class=cl><span class=c1></span><span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>).</span><span class=nx>on</span> <span class=s>&#39;page:fetch&#39;</span><span class=p>,</span> <span class=nf>-&gt;</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl>  <span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>.</span><span class=nx>documentElement</span><span class=p>)</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl>    <span class=p>.</span><span class=nx>removeClass</span><span class=p>(</span><span class=s>&#39;loaded&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=ln> 5</span><span class=cl>
+</span></span><span class=line><span class=ln> 6</span><span class=cl>  <span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>.</span><span class=nx>documentElement</span><span class=p>)</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl>    <span class=p>.</span><span class=nx>addClass</span><span class=p>(</span><span class=s>&#39;loading&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=ln> 8</span><span class=cl>
+</span></span><span class=line><span class=ln> 9</span><span class=cl><span class=c1># the page has been parsed and changed to the new version and on DOMContentLoaded
+</span></span></span><span class=line><span class=ln>10</span><span class=cl><span class=c1></span><span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>).</span><span class=nx>on</span> <span class=s>&#39;page:change&#39;</span><span class=p>,</span> <span class=nf>-&gt;</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl>  <span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>.</span><span class=nx>documentElement</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>    <span class=p>.</span><span class=nx>removeClass</span><span class=p>(</span><span class=s>&#39;loading&#39;</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>13</span><span class=cl>
+</span></span><span class=line><span class=ln>14</span><span class=cl>
+</span></span><span class=line><span class=ln>15</span><span class=cl><span class=c1># is fired at the end of the loading process
+</span></span></span><span class=line><span class=ln>16</span><span class=cl><span class=c1></span><span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>).</span><span class=nx>on</span> <span class=s>&#39;page:load&#39;</span><span class=p>,</span> <span class=nf>-&gt;</span>
+</span></span><span class=line><span class=ln>17</span><span class=cl>  <span class=nx>$</span><span class=p>(</span><span class=nb>document</span><span class=p>.</span><span class=nx>documentElement</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>18</span><span class=cl>    <span class=p>.</span><span class=nx>addClass</span><span class=p>(</span><span class=s>&#39;loaded&#39;</span><span class=p>)</span>
+</span></span></code></pre></div><p>The SCSS (the <code>@media</code> rule keeps this on mobile-only):</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-scss data-lang=scss><span class=line><span class=ln> 1</span><span class=cl><span class=k>@media</span> <span class=p>(</span><span class=na>max-width</span><span class=o>:</span> <span class=nv>$grid-float-breakpoint</span><span class=p>)</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl>  <span class=nv>$duration</span><span class=o>:</span> <span class=mi>0</span><span class=mf>.15</span><span class=kt>s</span><span class=p>;</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl>  <span class=nv>$swing</span><span class=o>:</span> <span class=mi>150</span><span class=kt>%</span><span class=p>;</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl>
+</span></span><span class=line><span class=ln> 5</span><span class=cl>  <span class=nn>#page-content</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl>    <span class=k>@include</span><span class=nd> transform</span><span class=p>(</span><span class=nf>translate3d</span><span class=p>(</span><span class=nv>$swing</span><span class=o>,</span> <span class=mi>0</span><span class=o>,</span> <span class=mi>0</span><span class=p>));</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl>
+</span></span><span class=line><span class=ln> 8</span><span class=cl>    <span class=nc>.loaded</span> <span class=k>&amp;</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln> 9</span><span class=cl>      <span class=k>@include</span><span class=nd> transform</span><span class=p>(</span><span class=ni>none</span><span class=p>);</span>
+</span></span><span class=line><span class=ln>10</span><span class=cl>      <span class=k>@include</span><span class=nd> transition</span><span class=p>(</span><span class=ni>transform</span> <span class=nv>$duration</span> <span class=ni>ease-in-out</span><span class=p>);</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>
+</span></span><span class=line><span class=ln>13</span><span class=cl>    <span class=nc>.loading</span> <span class=k>&amp;</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>14</span><span class=cl>      <span class=k>@include</span><span class=nd> transform</span><span class=p>(</span><span class=nf>translate3d</span><span class=p>(</span><span class=o>-</span><span class=si>#{</span> <span class=nv>$swing</span> <span class=si>}</span><span class=o>,</span> <span class=mi>0</span><span class=o>,</span> <span class=mi>0</span><span class=p>));</span>
+</span></span><span class=line><span class=ln>15</span><span class=cl>      <span class=k>@include</span><span class=nd> transition</span><span class=p>(</span><span class=ni>transform</span> <span class=nv>$duration</span> <span class=ni>ease-in-out</span><span class=p>);</span>
+</span></span><span class=line><span class=ln>16</span><span class=cl>
+</span></span><span class=line><span class=ln>17</span><span class=cl>      <span class=k>&amp;</span><span class=nd>:before</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>18</span><span class=cl>        <span class=k>@include</span><span class=nd> transform</span><span class=p>(</span><span class=nf>translate3d</span><span class=p>(</span><span class=nv>$swing</span><span class=o>,</span> <span class=mi>0</span><span class=o>,</span> <span class=mi>0</span><span class=p>));</span>
+</span></span><span class=line><span class=ln>19</span><span class=cl>
+</span></span><span class=line><span class=ln>20</span><span class=cl>        <span class=na>-webkit-animation</span><span class=o>:</span> <span class=n>pulse</span> <span class=mi>3</span><span class=kt>s</span> <span class=ni>infinite</span> <span class=ni>ease-in-out</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>21</span><span class=cl>        <span class=na>-moz-animation</span><span class=o>:</span> <span class=n>pulse</span> <span class=mi>3</span><span class=kt>s</span> <span class=ni>infinite</span> <span class=ni>ease-in-out</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>22</span><span class=cl>        <span class=na>content</span><span class=o>:</span> <span class=s1>&#39;Loading...&#39;</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>23</span><span class=cl>        <span class=na>display</span><span class=o>:</span> <span class=ni>block</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>24</span><span class=cl>        <span class=na>font-size</span><span class=o>:</span> <span class=mi>28</span><span class=kt>px</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>25</span><span class=cl>        <span class=na>left</span><span class=o>:</span> <span class=mi>0</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>26</span><span class=cl>        <span class=na>position</span><span class=o>:</span> <span class=ni>fixed</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>27</span><span class=cl>        <span class=na>text-align</span><span class=o>:</span> <span class=ni>center</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>28</span><span class=cl>        <span class=na>top</span><span class=o>:</span> <span class=mi>100</span><span class=kt>px</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>29</span><span class=cl>        <span class=na>width</span><span class=o>:</span> <span class=mi>100</span><span class=kt>%</span><span class=p>;</span>
+</span></span><span class=line><span class=ln>30</span><span class=cl>      <span class=p>}</span>
+</span></span><span class=line><span class=ln>31</span><span class=cl>    <span class=p>}</span>
+</span></span><span class=line><span class=ln>32</span><span class=cl>  <span class=p>}</span>
+</span></span><span class=line><span class=ln>33</span><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=ln>34</span><span class=cl>
+</span></span><span class=line><span class=ln>35</span><span class=cl><span class=k>@-webkit-keyframes</span> <span class=nt>pulse</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>36</span><span class=cl>  <span class=nt>0</span><span class=err>%</span>   <span class=p>{</span> <span class=na>opacity</span><span class=o>:</span> <span class=mi>0</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>37</span><span class=cl>  <span class=nt>50</span><span class=err>%</span>  <span class=p>{</span> <span class=na>opacity</span><span class=o>:</span> <span class=mi>0</span><span class=mf>.3</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>38</span><span class=cl>  <span class=nt>100</span><span class=err>%</span> <span class=p>{</span> <span class=na>opacity</span><span class=o>:</span> <span class=mi>0</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>39</span><span class=cl><span class=p>}</span>
+</span></span><span class=line><span class=ln>40</span><span class=cl><span class=k>@-moz-keyframes</span> <span class=nt>pulse</span> <span class=p>{</span>
+</span></span><span class=line><span class=ln>41</span><span class=cl>  <span class=nt>0</span><span class=err>%</span>   <span class=p>{</span> <span class=na>opacity</span><span class=o>:</span> <span class=mi>0</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>42</span><span class=cl>  <span class=nt>50</span><span class=err>%</span>  <span class=p>{</span> <span class=na>opacity</span><span class=o>:</span> <span class=mi>0</span><span class=mf>.3</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>43</span><span class=cl>  <span class=nt>100</span><span class=err>%</span> <span class=p>{</span> <span class=na>opacity</span><span class=o>:</span> <span class=mi>0</span><span class=p>;</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>44</span><span class=cl><span class=p>}</span>
+</span></span></code></pre></div><p>So, we:</p><ol><li>On <code>page:fetch</code> add the &rsquo;loading&rsquo; class to the HTML, causing the
+<code>#page-content</code> node to swing hard left (the negative X translation) and
+appear to &lsquo;swipe away&rsquo; off-screen (that&rsquo;s the <code>transition</code>).</li><li>On <code>page:change</code> we remove &rsquo;loading&rsquo; from the HTML, causing <code>#page-content</code>
+to swing hard right (the positive X translation) so it resides in the wings
+of the page, invisible until&mldr;</li><li>We add the &rsquo;loaded&rsquo; class to the HTML, removing any translation on the
+<code>#page-content</code> node, animating it into center position where it looks just
+fine and normal.</li></ol><p>A note on Bootstrap: I&rsquo;d used <code>translate3d(0, 0, 0)</code> for the &rsquo;loaded&rsquo; state
+before but it totally breaks any instances of the Bootstrap modal whereas the
+<code>transform(none)</code> doesn&rsquo;t. The modals use a translate3d effect to slide them
+into view and for whatever reason the stacking of these effects doesn&rsquo;t play
+nice in Chrome.</p></section><aside><h3>Related</h3><ul><li><a href=/posts/building-trello-cycles/>Building Trello Cycles</a></li></ul></aside></article></main><footer id=pageFooter><div><p>Evan Lecklider<br>A blog about software development<br></p><p><a href=https://github.com/evanleck>github.com/evanleck</a><br><a href=https://twitter.com/evanleck>twitter.com/evanleck</a></p></div><p><a href=https://gitlab.com/evanleck/lecklider.com>This site's source code.</a></p></footer><script src=//instant.page/3.0.0 type=module defer integrity=sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1></script></body></html>

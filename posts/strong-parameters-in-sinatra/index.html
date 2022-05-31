@@ -1,0 +1,94 @@
+<!doctype html><html lang=en-us><head><meta charset=utf-8><title>Strong Parameters in Sinatra &#183; Evan Lecklider</title><meta name=viewport content="width=device-width,initial-scale=1"><meta name=author content="Evan Lecklider"><meta name=description content="A blog about software development"><meta name=generator content="Hugo 0.100.0"><meta property="og:title" content="Strong Parameters in Sinatra"><meta property="og:description" content="A while ago a concept called &ldquo;Strong Parameters&rdquo; was added to Ruby on Rails, the general idea of which was to explicitly allow or deny parameters passing into your application code.
+Since most of my work right now is in Sinatra, I was interested in creating something similar with my setup in mind. I decided to give it a go using Sinatra&rsquo;s conditions and the result, is my &ldquo;sinatra-strong-params&rdquo; Ruby gem."><meta property="og:type" content="article"><meta property="og:url" content="https://lecklider.com/posts/strong-parameters-in-sinatra/"><meta property="article:section" content="posts"><meta property="article:published_time" content="2015-12-08T00:00:00+00:00"><meta property="article:modified_time" content="2015-12-08T00:00:00+00:00"><link rel=stylesheet href=https://lecklider.com/main.min.f5adb5eb39b06da2e40c222264f41f139f71c6162c38b45b0b612b6a5842737b.css integrity="sha256-9a216zmwbaLkDCIiZPQfE59xxhYsOLRbC2EralhCc3s="><link rel=apple-touch-icon href=https://lecklider.com/apple-touch-icon.png><link rel="shortcut icon" href=https://lecklider.com/favicon.ico type=image/x-icon></head><body><nav id=pageNavigation><ul><li><a href=/>Home</a></li></ul></nav><main><article id=singleArticle itemscope itemtype=http://schema.org/Article><meta itemprop=author content="Evan Lecklider"><header style=background-color:#20b2aa><h1 itemprop=name>Strong Parameters in Sinatra</h1><p><time datetime="2015-12-08 00:00:00 +0000 UTC" itemprop=datePublished>Dec 8, 2015</time>
+in
+<a href=/tags/ruby>Ruby</a>
+, <a href=/tags/security>Security</a>
+, <a href=/tags/sinatra>Sinatra</a></p></header><section itemprop=articleBody><p>A while ago a concept called &ldquo;<a href=https://github.com/rails/strong_parameters>Strong
+Parameters</a>&rdquo; was added to Ruby on
+Rails, the general idea of which was to explicitly allow or deny parameters
+passing into your application code.</p><p>Since most of my work right now is in Sinatra, I was interested in creating
+something similar with my setup in mind. I decided to give it a go using
+<a href=http://www.sinatrarb.com/intro.html#Conditions>Sinatra&rsquo;s conditions</a> and the
+result, is my
+&ldquo;<a href=https://github.com/evanleck/sinatra-strong-params>sinatra-strong-params</a>&rdquo;
+Ruby gem.</p><p>Here&rsquo;s an example Sinatra application using StrongParams:</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln> 1</span><span class=cl><span class=nb>require</span> <span class=s1>&#39;sinatra/base&#39;</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl><span class=nb>require</span> <span class=s1>&#39;sinatra/strong-params&#39;</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl>
+</span></span><span class=line><span class=ln> 4</span><span class=cl><span class=k>class</span> <span class=nc>ExampleApp</span> <span class=o>&lt;</span> <span class=no>Sinatra</span><span class=o>::</span><span class=no>Base</span>
+</span></span><span class=line><span class=ln> 5</span><span class=cl>  <span class=n>configure</span> <span class=k>do</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl>    <span class=n>register</span> <span class=no>Sinatra</span><span class=o>::</span><span class=no>StrongParams</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln> 8</span><span class=cl>
+</span></span><span class=line><span class=ln> 9</span><span class=cl>  <span class=n>get</span> <span class=s1>&#39;/&#39;</span><span class=p>,</span> <span class=ss>allows</span><span class=p>:</span> <span class=o>[</span><span class=ss>:search</span><span class=o>]</span> <span class=k>do</span>
+</span></span><span class=line><span class=ln>10</span><span class=cl>    <span class=c1># Only the &#39;search&#39; parameter will make it to the execution scope.</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>
+</span></span><span class=line><span class=ln>13</span><span class=cl>  <span class=n>post</span> <span class=s1>&#39;/search&#39;</span><span class=p>,</span> <span class=ss>needs</span><span class=p>:</span> <span class=o>[</span><span class=ss>:search</span><span class=p>,</span> <span class=ss>:_csrf</span><span class=o>]</span> <span class=k>do</span>
+</span></span><span class=line><span class=ln>14</span><span class=cl>    <span class=c1># Will only ever return if both the &#39;search&#39; and &#39;_csrf&#39; parameters are present.</span>
+</span></span><span class=line><span class=ln>15</span><span class=cl>    <span class=c1>#   Otherwise, it will raise an instance of RequiredParamMissing</span>
+</span></span><span class=line><span class=ln>16</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>17</span><span class=cl>
+</span></span><span class=line><span class=ln>18</span><span class=cl>  <span class=n>error</span> <span class=no>RequiredParamMissing</span> <span class=k>do</span>
+</span></span><span class=line><span class=ln>19</span><span class=cl>    <span class=c1># Handle parameter failures here.</span>
+</span></span><span class=line><span class=ln>20</span><span class=cl>    <span class=o>[</span><span class=mi>400</span><span class=p>,</span> <span class=s2>&#34;No dice&#34;</span><span class=o>]</span>
+</span></span><span class=line><span class=ln>21</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>22</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><p>There are two new conditions we can add to any request: &ldquo;allows&rdquo; and &ldquo;needs&rdquo;. As
+you might have guessed, one specifies which parameters you&rsquo;d like to allow
+through to the request handler and the other specifies which parameters must be
+present for the request to be handled.</p><h2 id=allows>Allows</h2><p>Here, we simply filter out parameters to the request that are not explicitly
+allowed by the condition.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln> 1</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl><span class=c1># A way to whitelist parameters.</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl><span class=c1>#   get &#39;/&#39;, allows: [:id, :action] do</span>
+</span></span><span class=line><span class=ln> 5</span><span class=cl><span class=c1>#     erb :index</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl><span class=c1>#   end</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln> 8</span><span class=cl><span class=c1># Modifies the parameters available in the request scope.</span>
+</span></span><span class=line><span class=ln> 9</span><span class=cl><span class=c1># Stashes unmodified params in @_params</span>
+</span></span><span class=line><span class=ln>10</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl><span class=n>app</span><span class=o>.</span><span class=n>set</span><span class=p>(</span><span class=ss>:allows</span><span class=p>)</span> <span class=k>do</span> <span class=o>|*</span><span class=n>passable</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>  <span class=n>condition</span> <span class=k>do</span>
+</span></span><span class=line><span class=ln>13</span><span class=cl>    <span class=k>unless</span> <span class=vi>@params</span><span class=o>.</span><span class=n>empty?</span>
+</span></span><span class=line><span class=ln>14</span><span class=cl>      <span class=vi>@_params</span> <span class=o>=</span> <span class=vi>@_params</span> <span class=o>||</span> <span class=vi>@params</span> <span class=c1># for safety</span>
+</span></span><span class=line><span class=ln>15</span><span class=cl>      <span class=n>globals</span>  <span class=o>=</span> <span class=n>settings</span><span class=o>.</span><span class=n>globally_allowed_parameters</span>
+</span></span><span class=line><span class=ln>16</span><span class=cl>      <span class=n>passable</span> <span class=o>=</span> <span class=p>(</span><span class=n>globals</span> <span class=o>|</span> <span class=n>passable</span><span class=p>)</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=o>&amp;</span><span class=ss>:to_sym</span><span class=p>)</span> <span class=c1># make sure it&#39;s a symbol</span>
+</span></span><span class=line><span class=ln>17</span><span class=cl>
+</span></span><span class=line><span class=ln>18</span><span class=cl>      <span class=c1># trim the params down</span>
+</span></span><span class=line><span class=ln>19</span><span class=cl>      <span class=vi>@params</span> <span class=o>=</span> <span class=vi>@params</span><span class=o>.</span><span class=n>select</span> <span class=k>do</span> <span class=o>|</span><span class=n>param</span><span class=p>,</span> <span class=n>_value</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>20</span><span class=cl>        <span class=n>passable</span><span class=o>.</span><span class=n>include?</span><span class=p>(</span><span class=n>param</span><span class=o>.</span><span class=n>to_sym</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>21</span><span class=cl>      <span class=k>end</span>
+</span></span><span class=line><span class=ln>22</span><span class=cl>    <span class=k>end</span>
+</span></span><span class=line><span class=ln>23</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>24</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><h2 id=needs>Needs</h2><p>And here, we actually fail the request if one of the defined parameters is
+missing.</p><div class=highlight><pre tabindex=0 class=chroma><code class=language-ruby data-lang=ruby><span class=line><span class=ln> 1</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln> 2</span><span class=cl><span class=c1># A way to require parameters</span>
+</span></span><span class=line><span class=ln> 3</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln> 4</span><span class=cl><span class=c1>#   get &#39;/&#39;, needs: [:id, :action] do</span>
+</span></span><span class=line><span class=ln> 5</span><span class=cl><span class=c1>#     erb :index</span>
+</span></span><span class=line><span class=ln> 6</span><span class=cl><span class=c1>#   end</span>
+</span></span><span class=line><span class=ln> 7</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln> 8</span><span class=cl><span class=c1># Does not modify the parameters available to the request scope.</span>
+</span></span><span class=line><span class=ln> 9</span><span class=cl><span class=c1># Raises a RequiredParamMissing error if a needed param is missing</span>
+</span></span><span class=line><span class=ln>10</span><span class=cl><span class=c1>#</span>
+</span></span><span class=line><span class=ln>11</span><span class=cl><span class=n>app</span><span class=o>.</span><span class=n>set</span><span class=p>(</span><span class=ss>:needs</span><span class=p>)</span> <span class=k>do</span> <span class=o>|*</span><span class=n>needed</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>12</span><span class=cl>  <span class=n>condition</span> <span class=k>do</span>
+</span></span><span class=line><span class=ln>13</span><span class=cl>    <span class=k>if</span> <span class=vi>@params</span><span class=o>.</span><span class=n>nil?</span> <span class=o>||</span> <span class=vi>@params</span><span class=o>.</span><span class=n>empty?</span> <span class=o>&amp;&amp;</span> <span class=o>!</span><span class=n>needed</span><span class=o>.</span><span class=n>empty?</span>
+</span></span><span class=line><span class=ln>14</span><span class=cl>      <span class=nb>fail</span> <span class=no>RequiredParamMissing</span><span class=p>,</span> <span class=n>settings</span><span class=o>.</span><span class=n>missing_parameter_message</span>
+</span></span><span class=line><span class=ln>15</span><span class=cl>    <span class=k>else</span>
+</span></span><span class=line><span class=ln>16</span><span class=cl>      <span class=n>needed</span>     <span class=o>=</span> <span class=n>needed</span><span class=o>.</span><span class=n>map</span><span class=p>(</span><span class=o>&amp;</span><span class=ss>:to_sym</span><span class=p>)</span> <span class=c1># make sure it&#39;s a symbol</span>
+</span></span><span class=line><span class=ln>17</span><span class=cl>      <span class=n>sym_params</span> <span class=o>=</span> <span class=vi>@params</span><span class=o>.</span><span class=n>dup</span>
+</span></span><span class=line><span class=ln>18</span><span class=cl>
+</span></span><span class=line><span class=ln>19</span><span class=cl>      <span class=c1># symbolize the keys so we know what we&#39;re looking at</span>
+</span></span><span class=line><span class=ln>20</span><span class=cl>      <span class=n>sym_params</span><span class=o>.</span><span class=n>keys</span><span class=o>.</span><span class=n>each</span> <span class=k>do</span> <span class=o>|</span><span class=n>key</span><span class=o>|</span>
+</span></span><span class=line><span class=ln>21</span><span class=cl>        <span class=n>sym_params</span><span class=o>[</span><span class=p>(</span><span class=n>key</span><span class=o>.</span><span class=n>to_sym</span> <span class=k>rescue</span> <span class=n>key</span><span class=p>)</span> <span class=o>||</span> <span class=n>key</span><span class=o>]</span> <span class=o>=</span> <span class=n>sym_params</span><span class=o>.</span><span class=n>delete</span><span class=p>(</span><span class=n>key</span><span class=p>)</span>
+</span></span><span class=line><span class=ln>22</span><span class=cl>      <span class=k>end</span>
+</span></span><span class=line><span class=ln>23</span><span class=cl>
+</span></span><span class=line><span class=ln>24</span><span class=cl>      <span class=k>if</span> <span class=n>needed</span><span class=o>.</span><span class=n>any?</span> <span class=p>{</span> <span class=o>|</span><span class=n>key</span><span class=o>|</span> <span class=n>sym_params</span><span class=o>[</span><span class=n>key</span><span class=o>].</span><span class=n>nil?</span> <span class=o>||</span> <span class=n>sym_params</span><span class=o>[</span><span class=n>key</span><span class=o>].</span><span class=n>empty?</span> <span class=p>}</span>
+</span></span><span class=line><span class=ln>25</span><span class=cl>        <span class=nb>fail</span> <span class=no>RequiredParamMissing</span><span class=p>,</span> <span class=n>settings</span><span class=o>.</span><span class=n>missing_parameter_message</span>
+</span></span><span class=line><span class=ln>26</span><span class=cl>      <span class=k>end</span>
+</span></span><span class=line><span class=ln>27</span><span class=cl>    <span class=k>end</span>
+</span></span><span class=line><span class=ln>28</span><span class=cl>  <span class=k>end</span>
+</span></span><span class=line><span class=ln>29</span><span class=cl><span class=k>end</span>
+</span></span></code></pre></div><p>And there ya go! Lock down those parameters!</p></section><aside><h3>Related</h3><ul><li><a href=/posts/cross-site-request-forgery-prevention-in-sinatra/>Cross-Site Request Forgery Prevention in Sinatra</a></li><li><a href=/posts/transparent-proxies/>Transparent Proxy Detection in JavaScript</a></li></ul></aside></article></main><footer id=pageFooter><div><p>Evan Lecklider<br>A blog about software development<br></p><p><a href=https://github.com/evanleck>github.com/evanleck</a><br><a href=https://twitter.com/evanleck>twitter.com/evanleck</a></p></div><p><a href=https://gitlab.com/evanleck/lecklider.com>This site's source code.</a></p></footer><script src=//instant.page/3.0.0 type=module defer integrity=sha384-OeDn4XE77tdHo8pGtE1apMPmAipjoxUQ++eeJa6EtJCfHlvijigWiJpD7VDPWXV1></script></body></html>
