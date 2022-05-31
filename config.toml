@@ -3,24 +3,24 @@ languageCode = "en-US"
 title = "Evan Lecklider"
 
 [params]
-  author = "Evan Lecklider"
-  description = "A blog about software development"
+author = "Evan Lecklider"
+description = "A blog about software development"
 
 [module]
-  [module.hugoVersion]
-    extended = true
+[module.hugoVersion]
+extended = true
 
 [menu]
-  [[menu.nav]]
-    name = "Home"
-    url = "/"
+[[menu.nav]]
+name = "Home"
+url = "/"
 
 [markup]
-  [markup.highlight]
-    codeFences = true
-    lineNoStart = 1
-    lineNos = true
-    lineNumbersInTable = false
-    noClasses = false
-    style = "dracula"
-    tabWidth = 2
+[markup.highlight]
+codeFences = true
+lineNoStart = 1
+lineNos = true
+lineNumbersInTable = false
+noClasses = false
+style = "dracula"
+tabWidth = 2
