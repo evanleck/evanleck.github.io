@@ -2,8 +2,6 @@
 title = "Building JavaScript with Make"
 date = 2019-12-20
 tags = ["JavaScript", "Make"]
-draft = false
-background = "teal"
 +++
 
 [Make][wiki] (or [GNU Make][gnu])’s basic value proposition is that it will
@@ -16,7 +14,6 @@ While there are a near innumerable number of modern tools for building
 JavaScript, I find myself reaching for Make any time I'm working on a project
 that's not 100% JavaScript or one where I need to do some relatively simple
 compilation from a source file to a target file.
-
 
 ## Getting Started
 
@@ -48,7 +45,6 @@ you'll see that your changes aren't reflected in the destination file. We
 haven’t told Make about the dependencies that the target has — its
 prerequisites.
 
-
 ## Prerequisites
 
 Let’s teach Make what’s needed to keep `dest/index.js` up to date. Since
@@ -68,7 +64,6 @@ rebuilt, so it only rebuilds what’s out of date. It also won't rebuild targets
 that exist but don't have any prerequisites because it doesn't know how to tell
 if the target is out of date. In our example above, we’ve told Make that
 `dest/index.js` should be rebuilt any time `src/index.js` is updated.
-
 
 ## The Recipe
 
@@ -98,8 +93,7 @@ dest/index.js: src/index.js
 
 Now, every time `src/index.js` changes, our new recipe using terser will be run
 and the source file will be compressed and output to Make’s target file. We’ve
-taught Make how to *ahem* make our target!
-
+taught Make how to _ahem_ make our target!
 
 ## More Than One Target
 
@@ -122,7 +116,7 @@ This kinda sucks though. There’s a ton of duplication and when we inevitably
 need to add a third, fourth, or hundredth file then this will start to come
 apart. Instead, let’s use Make’s [pattern rules][patternrules] combined with
 [automatic variables][autovars] to teach Make not just how to handle each
-specific file, but how to handle this *kind* of file. In this case, we’re going
+specific file, but how to handle this _kind_ of file. In this case, we’re going
 to teach Make how to handle any JavaScript file that’s in our source directory.
 We’ll first look at what our new target/recipe looks like and then dissect it to
 understand what’s going on.
@@ -141,11 +135,12 @@ happening:
   portion of the target name that was matched in the target. For example, if
   `dest/turkeys.js` was handed to this target, the “%” in the prerequisite would
   expand to `turkeys`.
-- The “$<“ in the recipe is an automatic variable populated by Make with the
+- The
+  “$<“ in the recipe is an automatic variable populated by Make with the
   name of the first prerequisite. When we run `make dest/index.js`, the “%”
   matches the stem “index” and expands our first prerequisite to “src/index.js”
-  which is then handed to the recipe, so “$<“ gets expanded to the same:
-  “src/index.js”.
+  which is then handed to the recipe, so “$<“
+  gets expanded to the same: “src/index.js”.
 - The “$@“ in the recipe is another automatic variable populated by Make, but
   this time with the name of the target file.
 
@@ -153,10 +148,11 @@ Now if you run `make dest/index.js` or `make dest/lib.js` they’ll both be
 handled by the same target and run the same recipe, generating the appropriate
 file based on the corresponding prerequisite.
 
-
-[autovars]: https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
+[autovars]:
+	https://www.gnu.org/software/make/manual/make.html#Automatic-Variables
 [gnu]: https://www.gnu.org/software/make/
-[npx]: https://blog.npmjs.org/post/162869356040/introducing-npx-an-npm-package-runner
+[npx]:
+	https://blog.npmjs.org/post/162869356040/introducing-npx-an-npm-package-runner
 [patternrules]: https://www.gnu.org/software/make/manual/make.html#Pattern-Rules
 [recipe]: https://www.gnu.org/software/make/manual/html_node/Recipes.html
 [terser]: https://github.com/terser/terser

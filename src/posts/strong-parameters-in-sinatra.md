@@ -2,15 +2,13 @@
 title = "Strong Parameters in Sinatra"
 date = 2015-12-08
 tags = ["Ruby", "Sinatra", "Security"]
-draft = false
-background = "lightseagreen"
 aliases = ["/2015/12/strong-parameters-in-sinatra.html"]
 +++
 
-A while ago a concept called "[Strong
-Parameters](https://github.com/rails/strong_parameters)" was added to Ruby on
-Rails, the general idea of which was to explicitly allow or deny parameters
-passing into your application code.
+A while ago a concept called
+"[Strong Parameters](https://github.com/rails/strong_parameters)" was added to
+Ruby on Rails, the general idea of which was to explicitly allow or deny
+parameters passing into your application code.
 
 Since most of my work right now is in Sinatra, I was interested in creating
 something similar with my setup in mind. I decided to give it a go using

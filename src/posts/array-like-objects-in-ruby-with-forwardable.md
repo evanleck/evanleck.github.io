@@ -2,8 +2,6 @@
 title = "Array-like Objects in Ruby with Forwardable"
 date = 2016-03-17
 tags = ["Ruby"]
-draft = false
-background = "cornflowerblue"
 aliases = ["/2016/03/array-like-objects-in-ruby-with-forwardable.html"]
 +++
 
@@ -14,7 +12,6 @@ methods for common queries I want to perform against those transactions.
 
 Here I'll show you how I deal with Array-like objects and why I like using
 Forwardable to create wrappers around arrays.
-
 
 ## Transaction
 
@@ -29,7 +26,6 @@ class Transaction
   end
 end
 ```
-
 
 ## Array
 
@@ -50,7 +46,6 @@ end
 It's not super pretty, but it works. What I'd like is to shorten this up since
 there's a fairly finite set of common queries we'll perform against this
 collection.
-
 
 ## Forwardable
 
@@ -119,12 +114,11 @@ end
 Pretty nifty, huh? This is a pretty simplified example but I use this pattern of
 wrapping arrays in custom 'List type objects all over the place.
 
-
 ## Caveats
 
-Because we've only instructed TransactionList to delegate the 'each' and
-'select' methods to our transactions array, if we try to call other
+Because we've only instructed TransactionList to delegate the `each` and
+`select` methods to our transactions array, if we try to call other
 [Enumerable](http://ruby-doc.org/core-2.3.0/Enumerable.html) or
 [Array](http://ruby-doc.org/core-2.3.0/Array.html) methods on our
-TransactionList we will get a NoMethodError. Remember, you have to *explicitly
-tell Forwardable what methods to delegate*.
+TransactionList we will get a NoMethodError. Remember, you have to _explicitly
+tell Forwardable what methods to delegate_.

@@ -1,23 +1,20 @@
 +++
-title = "Leaving Gmail"
-date = 2013-10-30
-draft = false
-background = "royalblue"
+title = "Leaving Gmail" 
+date = 2013-10-30 
 aliases = ["/2013/10/leaving-gmail.html"]
 +++
 
 I decided to leave Gmail. Not Google. Not their search or their browser, just
 Gmail. Because Google is, at its heart, an advertising company and as we all
-know, [if
-you're](http://lifehacker.com/5697167/if-youre-not-paying-for-it-youre-the-product)
-[not paying for
-it](http://www.metafilter.com/95152/Userdriven-discontent#3256046), [you're the
-product](http://www.forbes.com/sites/marketshare/2012/03/05/if-youre-not-paying-for-it-you-become-the-product/).
+know,
+[if you're](http://lifehacker.com/5697167/if-youre-not-paying-for-it-youre-the-product)
+[not paying for it](http://www.metafilter.com/95152/Userdriven-discontent#3256046),
+[you're the product](http://www.forbes.com/sites/marketshare/2012/03/05/if-youre-not-paying-for-it-you-become-the-product/).
 [Seriously](http://bit.ly/1aUIS0Z).
 
-My decision was slightly accelerated by the [numerous new idiosyncrasies of that
-Mavericks introduced to Apple Mail](http://tidbits.com/article/14219) when
-dealing with Gmail, but the idea of moving to a paid email service had been
+My decision was slightly accelerated by the
+[numerous new idiosyncrasies of that Mavericks introduced to Apple Mail](http://tidbits.com/article/14219)
+when dealing with Gmail, but the idea of moving to a paid email service had been
 germinating far longer than that. Apple Mail had also grown a bit wearisome for
 me due to its lack of robust keyboard shortcuts and
 [MailMate](http://freron.com/) was beginning to look increasingly interesting.

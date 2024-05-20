@@ -2,8 +2,6 @@
 title = "Dumb Grids with Susy"
 date = 2014-09-29
 tags = ["CSS", "Susy"]
-draft = false
-background = "darkcyan"
 aliases = ["/2014/09/dumb-grids-with-susy.html"]
 +++
 
@@ -16,29 +14,30 @@ do this:
 
 ```scss
 .container {
-  @include container;
+	@include container;
 
-  /* this is our grid breakpoint, ~ a medium width */
-  @media (min-width: 50em) {
-    max-width: 50em;
+	/* this is our grid breakpoint, ~ a medium width */
+	@media (min-width: 50em) {
+		max-width: 50em;
 
-    .half {
-      @include span(1 of 2);
-    }
-    .third {
-      @include span(1 of 3);
-    }
-    .half, .third {
-      &.last {
-        @include last;
-      }
-    }
-  }
+		.half {
+			@include span(1 of 2);
+		}
+		.third {
+			@include span(1 of 3);
+		}
+		.half,
+		.third {
+			&.last {
+				@include last;
+			}
+		}
+	}
 
-  /* this is our "desktop" width */
-  @media (min-width: 65em) {
-    max-width: 65em;
-  }
+	/* this is our "desktop" width */
+	@media (min-width: 65em) {
+		max-width: 65em;
+	}
 }
 ```
 

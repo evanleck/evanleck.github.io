@@ -2,8 +2,6 @@
 title = "Animating Turbolinks"
 date = 2014-07-11
 tags = ["JavaScript", "CSS"]
-draft = false
-background = "deeppink"
 aliases = ["/2014/07/animating-turbolinks.html"]
 +++
 
@@ -46,48 +44,60 @@ The SCSS (the `@media` rule keeps this on mobile-only):
 
 ```scss
 @media (max-width: $grid-float-breakpoint) {
-  $duration: 0.15s;
-  $swing: 150%;
+	$duration: 0.15s;
+	$swing: 150%;
 
-  #page-content {
-    @include transform(translate3d($swing, 0, 0));
+	#page-content {
+		@include transform(translate3d($swing, 0, 0));
 
-    .loaded & {
-      @include transform(none);
-      @include transition(transform $duration ease-in-out);
-    }
+		.loaded & {
+			@include transform(none);
+			@include transition(transform $duration ease-in-out);
+		}
 
-    .loading & {
-      @include transform(translate3d(-#{ $swing }, 0, 0));
-      @include transition(transform $duration ease-in-out);
+		.loading & {
+			@include transform(translate3d(-#{$swing}, 0, 0));
+			@include transition(transform $duration ease-in-out);
 
-      &:before {
-        @include transform(translate3d($swing, 0, 0));
+			&:before {
+				@include transform(translate3d($swing, 0, 0));
 
-        -webkit-animation: pulse 3s infinite ease-in-out;
-        -moz-animation: pulse 3s infinite ease-in-out;
-        content: 'Loading...';
-        display: block;
-        font-size: 28px;
-        left: 0;
-        position: fixed;
-        text-align: center;
-        top: 100px;
-        width: 100%;
-      }
-    }
-  }
+				-webkit-animation: pulse 3s infinite ease-in-out;
+				-moz-animation: pulse 3s infinite ease-in-out;
+				content: "Loading...";
+				display: block;
+				font-size: 28px;
+				left: 0;
+				position: fixed;
+				text-align: center;
+				top: 100px;
+				width: 100%;
+			}
+		}
+	}
 }
 
 @-webkit-keyframes pulse {
-  0%   { opacity: 0; }
-  50%  { opacity: 0.3; }
-  100% { opacity: 0; }
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.3;
+	}
+	100% {
+		opacity: 0;
+	}
 }
 @-moz-keyframes pulse {
-  0%   { opacity: 0; }
-  50%  { opacity: 0.3; }
-  100% { opacity: 0; }
+	0% {
+		opacity: 0;
+	}
+	50% {
+		opacity: 0.3;
+	}
+	100% {
+		opacity: 0;
+	}
 }
 ```
 

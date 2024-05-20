@@ -1,8 +1,6 @@
 +++
 title = "Octopress is a Little Scary"
-date =   2013-12-30
-draft = false
-background = "orangered"
+date = 2013-12-30
 aliases = ["/2013/12/octopress-is-a-little-scary.html"]
 +++
 
@@ -26,8 +24,8 @@ inscrutable at times. It's a complicated beast that does a lot of complicated
 stuff to bolt nice features onto Jekyll but I had a hard time wrapping my head
 around it because it seems so... well... bolted on.
 
-Check out the [category
-generator](https://github.com/imathis/octopress/blob/628e0e4d9ab6d251991fb93b187f10eebff3d7a8/plugins/category_generator.rb)
+Check out the
+[category generator](https://github.com/imathis/octopress/blob/628e0e4d9ab6d251991fb93b187f10eebff3d7a8/plugins/category_generator.rb)
 and tell me if you can make heads or tails of that. I can't, or more accurately,
 I'd rather not. How about the [setup process](http://octopress.org/docs/setup/),
 wherein you clone the entire repository (and therefore its history) into your
@@ -41,8 +39,8 @@ everything and in doing so, approaches inscrutability.
 
 ## That Fuckin' Rakefile
 
-This is really what blew me away: it [rewrites itself during
-execution](https://github.com/imathis/octopress/blob/d7a4bf5fc0c35f461c0d75796070203376d1b538/Rakefile#L354).
+This is really what blew me away: it
+[rewrites itself during execution](https://github.com/imathis/octopress/blob/d7a4bf5fc0c35f461c0d75796070203376d1b538/Rakefile#L354).
 The Rakefile rewrites itself while it's parsing itself!! WAT? I'm impressed,
 seriously. That's a ballsy move.
 

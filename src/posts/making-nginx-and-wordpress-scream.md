@@ -2,21 +2,19 @@
 title = "Making Nginx & WordPress Scream"
 date = 2013-10-10
 tags = ["Nginx", "WordPress", "PHP", "Cache"]
-draft = false
-background = "salmon"
 aliases = ["/2013/10/making-nginx-and-wordpress-scream.html"]
 +++
 
 WordPress is... interesting. It's sort of awesome and sort of The
-Worst<sup>&trade;</sup>. [PHP on its own certainly has its
-issues](http://me.veekun.com/blog/2012/04/09/php-a-fractal-of-bad-design/) but
-in particular, my experience with WordPress has been less than stellar because
-it is surprisingly fragile; its robustness and extensibility often lead to
-inscrutable errors and edge case bugs (third-party issues, but enabled by their
-systemic embrace); attempting to scale it at all efficiently quickly becomes a
-game of maintenance, optimization plug-ins, and indomitable will; and as a
-matter of aesthetics, every WordPress blog looks like a fucking WordPress blog.
-Every. Oneofthem.
+Worst<sup>&trade;</sup>.
+[PHP on its own certainly has its issues](http://me.veekun.com/blog/2012/04/09/php-a-fractal-of-bad-design/)
+but in particular, my experience with WordPress has been less than stellar
+because it is surprisingly fragile; its robustness and extensibility often lead
+to inscrutable errors and edge case bugs (third-party issues, but enabled by
+their systemic embrace); attempting to scale it at all efficiently quickly
+becomes a game of maintenance, optimization plug-ins, and indomitable will; and
+as a matter of aesthetics, every WordPress blog looks like a fucking WordPress
+blog. Every. Oneofthem.
 
 Nerdrage aside, having a nice GUI to work with and a quick way to slap a site
 together is valuable to a lot of people and companies. The savings involved
@@ -42,7 +40,7 @@ doesn't have that (or at least I've not seen it).
 
 [W3 Total Cache](http://wordpress.org/plugins/w3-total-cache/) is your best
 friend here because, aside from all of the other awesome shit it can do, it'll
-compile flat HTML versions of posts and pages. *JUST WHAT WE WANTED!* So head on
+compile flat HTML versions of posts and pages. _JUST WHAT WE WANTED!_ So head on
 into the settings and enable "Page Caching > Disk: Enhanced" to get WordPress
 ready for awesomeness.
 
@@ -73,9 +71,9 @@ the client.
 
 This is huge. We've now taken PHP & MySQL out of the equation for the bulk of
 the requests to our WordPress site, but we can do more. We can make it better.
-Let's add [Nginx's awesome FastCGI
-caching](http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html). Here's an
-abbreviated version of the Nginx config that'll get us there:
+Let's add
+[Nginx's awesome FastCGI caching](http://nginx.org/en/docs/http/ngx_http_fastcgi_module.html).
+Here's an abbreviated version of the Nginx config that'll get us there:
 
 ```nginx
 http {
@@ -104,18 +102,18 @@ http {
 
 Let's break this down a bit:
 
-* `fastcgi_cache_path` tells Nginx where to store the cache (duh) and the
+- `fastcgi_cache_path` tells Nginx where to store the cache (duh) and the
   parameter `inactive` does something special though: when a cache key hasn't
   been accessed for the designated period of time (in this case three minutes),
   the key gets expired. Simple, but powerful.
-* `$cache_uri` should look familiar: it's the same thing we had earlier. We
+- `$cache_uri` should look familiar: it's the same thing we had earlier. We
   break apart the request URI to get just the path portion.
-* `fastcgi_cache_use_stale` tells Nginx to continue to serve any valid cache
+- `fastcgi_cache_use_stale` tells Nginx to continue to serve any valid cache
   keys if the upstream server (PHP in our case) fails to respond for any reason.
 
 It's pretty simple and with this in place, we have a pretty robust system
 capable of handling _loads_ of traffic with nary a moments notice. Like, fucking
-*loads* of traffic.
+_loads_ of traffic.
 
 So yeah, it's screamin' now.
 

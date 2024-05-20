@@ -1,8 +1,6 @@
 +++
 title = "MailMate's Default Search"
 date = 2014-01-01
-draft = false
-background = "lightslategray"
 aliases = ["/2014/01/mailmates-default-search.html"]
 +++
 
@@ -12,11 +10,14 @@ frustrated by the default search because it only searched the "from" field of my
 emails and I generally just want to search everything. So, I set up my search
 with to look through the "Common Headers or Body":
 
-![Screenshot showing the searchable fields](/search-dropdown.png "Common Headers or Body is the way to go")
+<img src="/images/search-dropdown.png" alt="Screenshot showing the searchable
+fields" title="Common Headers or Body is the way to go" transform-images="avif
+webp jpg 300@2">
 
 And then hit the button:
 
-![Screenshot showing menu item to make a search the
-default](/search-default.png "Set it as the default")
+<img src="/images/search-default.png" alt="Screenshot showing menu item to make
+a search the default" title="Set it as the default" transform-images="avif webp
+jpg 300@2">
 
 Simple enough, but it alleviated some pain for me.

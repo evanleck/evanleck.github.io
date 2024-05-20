@@ -2,32 +2,24 @@
 title = "Decorating Ruby's Net::HTTP for Fun and Profit"
 date = 2016-09-22
 tags = ["Ruby", "HTTP"]
-draft = false
-background = "blueviolet"
 aliases = ["/2016/09/decorating-ruby-s-net-http-for-fun-and-profit.html"]
 +++
 
-Ruby's
-[`Net::HTTP`](http://ruby-doc.org/stdlib-2.3.1/libdoc/net/http/rdoc/Net/HTTP.html)
-library gets a bad wrap, somewhat appropriately, for being opaque and cumbersome
-to implement in any meaninful way. It _works_ but it is gruesome to write every
-time you need to get data from a remote host. Obviously there are
-[a](https://github.com/lostisland/faraday)
-[zillion](https://github.com/typhoeus/typhoeus)
-[HTTP](https://github.com/jnunemaker/httparty)
-[wrappers](https://github.com/taf2/curb)
-[already](https://github.com/rest-client/rest-client) implemented, but I wanted
-to keep my dependencies low so I built my own little decorator around
-`Net::HTTP` called `HTTPDecorator`.
+Ruby's [`Net::HTTP`](net) library gets a bad wrap, somewhat appropriately, for
+being opaque and cumbersome to implement in any meaninful way. It _works_ but it
+is gruesome to write every time you need to get data from a remote host.
+Obviously there are [a](faraday) [zillion](typhoeus) [HTTP](httparty)
+[wrappers](curb) [already](rest-client) implemented, but I wanted to keep my
+dependencies low so I built my own little decorator around `Net::HTTP` called
+`HTTPDecorator`.
 
 It's limited. I know that and you should too, but it does what I need and could
 be extended with more features as needed. Right now it supports:
 
 1. These HTTP verbs: `GET` `POST` `PUT` `DELETE` `PATCH`.
 2. Multipart uploads from the `params['file']` .
-3. Send/receive JSON by default. _Sidebar: I use
-   [Oj](https://github.com/ohler55/oj) for marshalling, but figured I'd keep it
-   simple here._
+3. Send/receive JSON by default. _Sidebar: I use [Oj](oj) for marshalling, but
+   figured I'd keep it simple here._
 4. Allow sending `application/x-www-form-urlencoded` as needed.
 5. Separate read/open timeouts configured as constants.
 6. Reusable, open connections using the `start` and `finish` methods.
@@ -63,8 +55,8 @@ end
 @api.finish
 ```
 
-And here's the implementation (which I also [posted as a
-gist](https://gist.github.com/evanleck/f60b6437ebbbbf96709937804e81d44c)):
+And here's the implementation (which I also
+[posted as a gist](https://gist.github.com/evanleck/f60b6437ebbbbf96709937804e81d44c)):
 
 ```ruby
 # encoding: UTF-8
@@ -227,3 +219,11 @@ class HTTPDecorator
   end
 end
 ```
+
+[curb]: https://github.com/taf2/curb
+[faraday]: https://github.com/lostisland/faraday
+[httparty]: https://github.com/jnunemaker/httparty
+[net]: http://ruby-doc.org/stdlib-2.3.1/libdoc/net/http/rdoc/Net/HTTP.html
+[oj]: https://github.com/ohler55/oj
+[rest-client]: https://github.com/rest-client/rest-client
+[typhoeus]: https://github.com/typhoeus/typhoeus

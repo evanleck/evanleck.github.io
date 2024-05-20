@@ -2,8 +2,6 @@
 title = "Transparent Proxy Detection in JavaScript"
 date = 2015-11-16
 tags = ["JavaScript", "Security"]
-draft = false
-background = "dodgerblue"
 aliases = ["/2015/11/transparent-proxies.html"]
 +++
 
@@ -20,9 +18,10 @@ enter on our site in jeopardy.
 
 I stumbled on the issue through a happy coincidence: my site generates an email
 when a request looks like it has been forged. As a simple anti-request forgery
-measure, I use the [synchronizer token
-pattern](2014-08-21-csrf-prevention-in-sinatra.html) and when this method fails,
-I send myself the details of the request. It looks something like this:
+measure, I use the
+[synchronizer token pattern](cross-site-request-forgery-prevention-in-sinatra.md)
+and when this method fails, I send myself the details of the request. It looks
+something like this:
 
 ```
 CSRF Failed
@@ -43,7 +42,12 @@ server thinks it is; I have Sinatra pass its values to the JavaScript running on
 the page in the form of the `proxyCheck` variable:
 
 ```html
-<script>proxyCheck = { hostname: '<%= request.host %>', pathname: '<%= request.path %>' };</script>
+<script>
+	proxyCheck = {
+		hostname: "<%= request.host %>",
+		pathname: "<%= request.path %>",
+	};
+</script>
 ```
 
 and then I compare the host and path values to what the JavaScript thinks is
@@ -55,23 +59,25 @@ below.
  * This is a naive attempt to protect against transparent proxies.
  * - We pass the request host and path in from Rack and compare it against what JS sees.
  * - If they don't match, put them where they should be.
- *
  */
-(function(location) {
-  if (location.hostname !== proxyCheck.hostname || location.pathname !== proxyCheck.pathname) {
-    /* Use an anchor tag as a parser. */
-    var redirectParser = document.createElement('a');
+(function (location) {
+	if (
+		location.hostname !== proxyCheck.hostname ||
+		location.pathname !== proxyCheck.pathname
+	) {
+		/* Use an anchor tag as a parser. */
+		var redirectParser = document.createElement("a");
 
-    /* Grab the current, browser-side URL */
-    redirectParser.href = location.href;
+		/* Grab the current, browser-side URL */
+		redirectParser.href = location.href;
 
-    /* Then munge the hostname, pathname, and port to match the server. */
-    redirectParser.hostname = proxyCheck.hostname;
-    redirectParser.pathname = proxyCheck.pathname;
-    redirectParser.port = '';
+		/* Then munge the hostname, pathname, and port to match the server. */
+		redirectParser.hostname = proxyCheck.hostname;
+		redirectParser.pathname = proxyCheck.pathname;
+		redirectParser.port = "";
 
-    /* And redirect away. */
-    window.top.location.replace(redirectParser.href);
-  }
+		/* And redirect away. */
+		window.top.location.replace(redirectParser.href);
+	}
 })(window.location);
 ```
