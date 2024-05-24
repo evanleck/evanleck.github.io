@@ -1,0 +1,22 @@
+{
+  "fmt": {
+    "useTabs": true
+  },
+  "tasks": {
+    "lume": "echo \"import 'lume/cli.ts'\" | deno run --unstable -A -",
+    "build": "deno task lume",
+    "serve": "deno task lume -s"
+  },
+  "imports": {
+    "@/": "./src/",
+    "lume/": "https://deno.land/x/lume@v2.2.0/",
+    "mdtoc/": "https://deno.land/x/lume_markdown_plugins@v0.7.0/"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "npm:preact",
+    "types": [
+      "lume/types.ts"
+    ]
+  }
+}

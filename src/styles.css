@@ -1,0 +1,265 @@
+@charset "utf-8";
+
+@import "styles/font-dm-mono.css";
+@import "styles/font-merriweather.css";
+@import "styles/font-public-sans.css";
+@import "styles/prism.css";
+@import "styles/reset.css";
+
+:root {
+  --font-serif: Merriweather, serif;
+  --font-sans-serif: "Public Sans", sans-serif;
+  --font-monospace: "DM Mono", monospace;
+
+  --border-color: #e2e2e2;
+  --content-width: 40rem;
+  --spacer: 1.25rem;
+  --text-color: #1b1b1b;
+  --accent-color: #0070ff;
+
+  accent-color: var(--accent-color); /* https://www.colorhexa.com/0070ff */
+}
+
+body {
+  color: var(--text-color);
+  font-family: var(--font-serif);
+  margin: 0;
+  min-height: 100vh;
+
+  display: grid;
+  grid-template-columns: [gap] auto [main] minmax(10rem, var(--content-width)) [gap] auto;
+  grid-template-rows: [header] auto [main] 1fr [footer] auto;
+}
+
+a {
+  color: #0065e6;
+  text-decoration-color: #b1d3ff;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+  transition: all 0.1s;
+
+  &:active {
+    color: #005fd8;
+  }
+
+  &:hover {
+    color: #005fd8;
+    text-underline-offset: 3px;
+  }
+
+  &:visited {
+    color: #0065e6;
+  }
+}
+
+#layoutHeader,
+#layoutMain,
+#layoutFooter {
+  grid-column: main;
+}
+
+#layoutHeader {
+  grid-row: header;
+  padding-top: var(--spacer);
+}
+
+#layoutMain {
+  grid-row: main;
+  padding: var(--spacer) 0;
+}
+
+#layoutFooter {
+  border-top: 3px double var(--border-color);
+  grid-row: footer;
+  padding: var(--spacer) 0;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-sans-serif);
+  line-height: 1;
+  margin: var(--spacer) 0;
+  padding: 0;
+  scroll-margin-top: var(--spacer);
+}
+
+h1 {
+  font-size: 2rem;
+}
+h2 {
+  font-size: 1.5rem;
+}
+h3 {
+  font-size: 1.25rem;
+}
+
+.flex-between {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+}
+
+#layoutNavigation {
+  font-weight: 400;
+
+  a {
+    border-radius: 0.2em;
+    color: unset;
+    display: inline-block;
+    padding: 0.3em 0.5em;
+    text-decoration-color: var(--border-color);
+
+    &:hover {
+      text-decoration-color: #bbb;
+    }
+
+    + a {
+      margin-left: 0.3em;
+    }
+  }
+}
+
+#layoutHomeLink {
+  color: var(--text-color);
+  font-size: 1.5rem;
+  font-weight: 600;
+  text-decoration-color: transparent;
+
+  &:hover {
+    text-decoration-color: #bbb;
+  }
+}
+
+#articleLayout {
+  header {
+    border-bottom: 3px double var(--border-color);
+    padding-bottom: var(--spacer);
+  }
+
+  [itemprop="name"] {
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+    margin-top: 2rem;
+  }
+
+  [itemprop="articleBody"] {
+    line-height: 1.6;
+    padding-top: var(--spacer);
+
+    p {
+      margin-bottom: 1.5rem;
+
+      /* https://www.colorhexa.com/ff0070 */
+      code {
+        background-color: #ffebf4;
+        display: inline-block;
+        padding: 0 0.25em;
+        border-radius: 0.2em;
+        border: 1px dotted #ff0070;
+        font-size: 0.875rem;
+      }
+    }
+
+    pre,
+    code {
+      font-family: var(--font-monospace);
+    }
+
+    pre {
+      font-size: 0.9rem;
+    }
+  }
+}
+
+hr {
+  border: none;
+  border-top: 3px double var(--border-color);
+}
+
+#postTableOfContents {
+  line-height: 1.6;
+  border-bottom: 3px double var(--border-color);
+
+  ol,
+  ul {
+    list-style: none;
+    margin-top: 0;
+  }
+}
+
+.visuallyQuiet {
+  color: #5f5f5f;
+  font-weight: 100;
+}
+
+#layoutSubscribe {
+  font-size: 0.9rem;
+}
+
+article.summary {
+  margin-bottom: 1.5rem;
+
+  [itemprop="name"] {
+    margin-bottom: 0.5rem;
+    padding: 0;
+  }
+}
+
+#indexHeading {
+  font-size: 2rem;
+  text-align: center;
+
+  span {
+    text-decoration-color: var(--border-color);
+    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 2px;
+
+    &:hover {
+      text-decoration-color: #bbb;
+    }
+  }
+}
+
+.visualSpacer {
+  text-align: center;
+
+  &::after {
+    content: "· · ·";
+  }
+}
+
+.spacerTop {
+  margin-top: var(--spacer);
+}
+
+#archivePagination {
+  ul {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    padding-left: 0;
+
+    li {
+      padding: 0.25rem 0.5rem;
+    }
+  }
+}
+
+#categoriesList {
+  font-size: 1.25rem;
+  list-style: none;
+  padding-left: 0;
+
+  li {
+    margin-bottom: calc(var(--spacer) / 2);
+  }
+}

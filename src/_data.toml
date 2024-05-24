@@ -1,0 +1,6 @@
+layout = "layouts/main.tsx"
+
+[site]
+title = "Evan Lecklider"
+author = "Evan Lecklider"
+description = "This is mostly a blog about software development…"
