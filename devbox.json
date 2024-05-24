@@ -1,0 +1,4 @@
+{
+	"$schema": "https://raw.githubusercontent.com/jetpack-io/devbox/0.10.6/.schema/devbox.schema.json",
+	"packages": ["deno@1.43.1"]
+}
