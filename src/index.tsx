@@ -1,4 +1,4 @@
-export const title = "Home!";
+export const title = "Home";
 
 export default function (data: Lume.Data, _helpers: Lume.Helpers) {
 	const postsLimit = 7;
