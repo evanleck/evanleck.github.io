@@ -4,7 +4,7 @@ export const title = "Archive";
 export default function* ({ search, paginate }: Lume.Data) {
 	const posts = search.pages("type=post", "date=desc");
 
-	for (const data of paginate(posts, { url, size: 5 })) {
+	for (const data of paginate(posts, { url, size: 10 })) {
 		yield data;
 	}
 }
