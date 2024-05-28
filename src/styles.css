@@ -25,6 +25,7 @@ body {
   font-family: var(--font-serif);
   margin: 0;
   min-height: 100vh;
+  padding: 0 1rem;
 
   display: grid;
   grid-template-columns: [gap] auto [main] minmax(10rem, var(--content-width)) [gap] auto;
@@ -99,9 +100,11 @@ h3 {
 }
 
 .flex-between {
-  align-items: center;
-  display: flex;
-  justify-content: space-between;
+  @media (min-width: 40rem) {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
 }
 
 #layoutNavigation {
