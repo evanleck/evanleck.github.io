@@ -63,6 +63,11 @@ a {
 #layoutHeader {
   grid-row: header;
   padding-top: var(--spacer);
+  text-align: center;
+
+  @media (min-width: 40rem) {
+    text-align: unset;
+  }
 }
 
 #layoutMain {
