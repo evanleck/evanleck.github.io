@@ -85,9 +85,9 @@ site.use(robots({
 		"AdsBot-Google",
 		"Amazonbot",
 		"anthropic-ai",
-		"Applebot",
+		"Applebot-Extended",
 		"AwarioRssBot",
-		"AwarioSmartBot",
+		"AwarioSmartBot
 		"Bytespider",
 		"CCBot",
 		"ChatGPT-User",
